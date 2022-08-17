@@ -1,7 +1,16 @@
 from python_lumber.client.v2 import Client
+from python_lumber.client.v2 import ClientConfig
 
-client = Client(write_timeout_s=1, read_timeout_s=1)
-client.connect('localhost:5044', 1)
+
+client = Client(ClientConfig(
+    **{
+        'connection_timeout_s': 1,
+        'read_timeout_s': 1, 
+        'write_timeout_s': 1,
+        'compression_level': 9,
+    }
+))
+client.connect('localhost:5044')
 
 data = [
     {'name': 'tom'},

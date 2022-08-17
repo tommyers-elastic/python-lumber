@@ -1,17 +1,17 @@
+import zlib
 from . import protocol
 import socket
 import ujson
 
 
 class Client:
-    def __init__(self, write_timeout_s=None, read_timeout_s=None):
+    def __init__(self, config):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.write_timeout = write_timeout_s
-        self.read_timeout = read_timeout_s
+        self.config = config.validate()
 
-    def connect(self, address, timeout_s):
+    def connect(self, address):
         host, port = address.split(':')
-        self.sock.settimeout(timeout_s)
+        self.sock.settimeout(self.config.connection_timeout_s)
         self.sock.connect((host, int(port)))
     
     def close(self):
@@ -23,14 +23,22 @@ class Client:
 
         payload = bytearray()
 
-        # 'window size' frame type
         payload.extend(protocol.CODE_VERSION)
         payload.extend(protocol.CODE_WINDOW_SIZE)
         payload.extend(self._format_int(len(messages)))
 
-        payload.extend(self._serialize(messages))
+        message_frames = self._serialize(messages)
 
-        self.sock.settimeout(self.write_timeout)
+        if self.config.compression_level > 0:
+            payload.extend(protocol.CODE_VERSION)
+            payload.extend(protocol.CODE_COMPRESSED)
+            compressed_frames = zlib.compress(message_frames, self.config.compression_level)
+            payload.extend(self._format_int(len(compressed_frames)))
+            payload.extend(compressed_frames)
+        else:
+            payload.extend(message_frames)
+
+        self.sock.settimeout(self.config.write_timeout_s)
         self.sock.sendall(payload)
 
     def ack(self, message_count): 
@@ -44,7 +52,7 @@ class Client:
         return ack_seq
 
     def _recv_ack(self):
-        self.sock.settimeout(self.read_timeout)
+        self.sock.settimeout(self.config.read_timeout_s)
         with self.sock.makefile() as s:
             msg = s.read(6).encode('utf-8')
         
@@ -59,7 +67,6 @@ class Client:
         for i, item in enumerate(messages):
             encoded = ujson.dumps(item).encode('utf-8')
 
-            # 'json data' frame type
             data.extend(protocol.CODE_VERSION)
             data.extend(protocol.CODE_JSON_DATA_FRAME)
             data.extend(cls._format_int(i + 1))
