@@ -1,13 +1,16 @@
+from os.path import abspath, dirname, join
 from python_lumber.client.v2 import Client
 from python_lumber.client.v2 import ClientConfig
 
+here = abspath(dirname(__file__))
 
 client = Client(ClientConfig(
     **{
         'connection_timeout_s': 1,
-        'read_timeout_s': 1, 
+        'read_timeout_s': 1,
         'write_timeout_s': 1,
         'compression_level': 9,
+        'cert_file': join(here, 'conf/ssl/instance.crt'),
     }
 ))
 client.connect('localhost:5044')

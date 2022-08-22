@@ -1,25 +1,32 @@
 import zlib
 from . import protocol
 import socket
+import ssl
 import ujson
 
 
 class Client:
     def __init__(self, config):
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.config = config.validate()
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if config.cert_file:
+            context = ssl.create_default_context()
+            context.load_verify_locations(config.cert_file)
+            sock = context.wrap_socket(sock, server_hostname='instance')
+        self.sock = sock
 
     def connect(self, address):
         host, port = address.split(':')
         self.sock.settimeout(self.config.connection_timeout_s)
         self.sock.connect((host, int(port)))
-    
+
     def close(self):
         self.sock.close()
 
     def send(self, messages):
         if len(messages) == 0:
-            return 
+            return
 
         payload = bytearray()
 
@@ -41,13 +48,14 @@ class Client:
         self.sock.settimeout(self.config.write_timeout_s)
         self.sock.sendall(payload)
 
-    def ack(self, message_count): 
+    def ack(self, message_count):
         ack_seq = 0
         while ack_seq < message_count:
             ack_seq = self._recv_ack()
-        
+
         if ack_seq > message_count:
-            raise protocol.ProtocolError(f'invalid ack sequence number received; expected {message_count}, got {ack_seq}')
+            raise protocol.ProtocolError(
+                f'invalid ack sequence number received; expected {message_count}, got {ack_seq}')
 
         return ack_seq
 
@@ -55,10 +63,10 @@ class Client:
         self.sock.settimeout(self.config.read_timeout_s)
         with self.sock.makefile() as s:
             msg = s.read(6).encode('utf-8')
-        
+
         if msg[0:1] != protocol.CODE_VERSION or msg[1:2] != protocol.CODE_ACK:
             raise protocol.ProtocolError('invalid ack response')
-        
+
         return int.from_bytes(msg[2:], byteorder='big')
 
     @classmethod
