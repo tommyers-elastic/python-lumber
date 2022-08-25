@@ -10,7 +10,8 @@ client = Client(ClientConfig(
         'read_timeout_s': 1,
         'write_timeout_s': 1,
         'compression_level': 9,
-        'cert_file': join(here, 'conf/ssl/instance.crt'),
+        'cert_file': join(here, 'conf/ssl/localhost.crt'),
+        'hostname': 'localhost',
     }
 ))
 client.connect('localhost:5044')

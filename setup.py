@@ -29,6 +29,6 @@ setup(
         'ujson==5.4.0',
     ],
     extras_require={
-        "dev": ["wheel"],
+        "dev": ["pytest", "pytest-benchmark", "requests", "twine", "wheel"],
     },
 )

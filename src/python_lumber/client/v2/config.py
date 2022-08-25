@@ -14,12 +14,14 @@ class ClientConfig:
         write_timeout_s=None,
         compression_level=0,
         cert_file=None,
+        hostname=None,
     ):
         self.connection_timeout_s = connection_timeout_s
         self.read_timeout_s = read_timeout_s
         self.write_timeout_s = write_timeout_s
         self.compression_level = compression_level
         self.cert_file = cert_file
+        self.hostname = hostname
 
     def validate(self):
         if self.connection_timeout_s is not None and self.connection_timeout_s <= 0:
@@ -36,6 +38,9 @@ class ClientConfig:
 
         if self.cert_file is not None and not self._check_file(self.cert_file):
             raise ConfigError('invalid SSL certificate file')
+
+        if self.cert_file is not None and self.hostname is None:
+            raise ConfigError('hostname must be provided with cert file')
 
         return self
 

@@ -13,7 +13,7 @@ class Client:
         if config.cert_file:
             context = ssl.create_default_context()
             context.load_verify_locations(config.cert_file)
-            sock = context.wrap_socket(sock, server_hostname='instance')
+            sock = context.wrap_socket(sock, server_hostname=config.hostname)
         self.sock = sock
 
     def connect(self, address):
