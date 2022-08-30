@@ -1,0 +1,44 @@
+{
+    "@timestamp": "2022-08-12T06:07:10.000Z",
+    "guid": "931b8ed9-d1db-4a3b-8fd8-6db92d9a1626",
+    "isActive": false,
+    "balance": "$2,440.11",
+    "picture": "http://placehold.it/32x32",
+    "age": 21,
+    "eyeColor": "brown",
+    "name": "Elba Pierce",
+    "gender": "female",
+    "company": "SLAMBDA",
+    "email": "elbapierce@slambda.com",
+    "phone": "+1 (853) 433-2427",
+    "address": "505 Williamsburg Street, Sutton, Maine, 7933",
+    "about": "Officia ea laboris reprehenderit incididunt qui sunt. Sunt ut ad sit ex deserunt laborum nulla dolor consectetur. Et labore minim aliqua nulla.\r\n",
+    "registered": "2015-05-01T03:32:44 -01:00",
+    "latitude": 64.820838,
+    "longitude": -66.055044,
+    "tags": [
+        "excepteur",
+        "amet",
+        "eu",
+        "in",
+        "occaecat",
+        "amet",
+        "esse"
+    ],
+    "friends": [
+        {
+            "id": 0,
+            "name": "Pope Ellis"
+        },
+        {
+            "id": 1,
+            "name": "Beasley Maynard"
+        },
+        {
+            "id": 2,
+            "name": "Snider Owen"
+        }
+    ],
+    "greeting": "Hello, Elba Pierce! You have 9 unread messages.",
+    "favoriteFruit": "strawberry"
+}

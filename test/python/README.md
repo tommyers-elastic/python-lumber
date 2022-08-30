@@ -66,3 +66,9 @@ Expected logstash output:
           "name" => "kaiyan"
 }
 ```
+
+To run the benchmarks, as above, but with the following command:
+
+```bash
+env/bin/pytest --benchmark-max-time=1 --benchmark-warmup=on --benchmark-warmup-iterations=10
+```
