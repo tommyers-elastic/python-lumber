@@ -31,12 +31,12 @@ class Client:
         if len(messages) == 0:
             return
 
-        # this cryptic chunker is adapted from the `grouper` code here:
-        # https://docs.python.org/3/library/itertools.html#itertools-recipes
         if self.chunk_size is None:
             self._send_chunk(messages)
             self._ack(len(messages))
         else:
+            # this cryptic chunker is adapted from the `grouper` code here:
+            # https://docs.python.org/3/library/itertools.html#itertools-recipes
             for chunk in (list(filter(None, x)) for x in zip_longest(*([iter(messages)] * self.chunk_size))):
                 self._send_chunk(chunk)
                 self._ack(len(chunk))
