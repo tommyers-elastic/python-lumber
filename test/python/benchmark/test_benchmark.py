@@ -37,7 +37,6 @@ def test_lumberjack(benchmark):
 
     def send():
         client.send(data)
-        client.ack(num_messages)
 
     benchmark(send)
 

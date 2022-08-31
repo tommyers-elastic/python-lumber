@@ -23,8 +23,4 @@ data = [
     {'name': 'mario'},
 ]
 client.send(data)
-read = client.ack(len(data))
-
-print(f'logstash acknowledged {read} events')
-
 client.close()

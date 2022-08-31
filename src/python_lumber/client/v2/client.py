@@ -3,9 +3,12 @@ from . import protocol
 import socket
 import ssl
 import ujson
+from itertools import zip_longest
 
 
 class Client:
+    chunk_size = 100 
+
     def __init__(self, config):
         self.config = config.validate()
 
@@ -28,6 +31,17 @@ class Client:
         if len(messages) == 0:
             return
 
+        # this cryptic chunker is adapted from the `grouper` code here:
+        # https://docs.python.org/3/library/itertools.html#itertools-recipes
+        if self.chunk_size is None:
+            self._send_chunk(messages)
+            self._ack(len(messages))
+        else:
+            for chunk in (list(filter(None, x)) for x in zip_longest(*([iter(messages)] * self.chunk_size))):
+                self._send_chunk(chunk)
+                self._ack(len(chunk))
+            
+    def _send_chunk(self, messages):
         payload = bytearray()
 
         payload.extend(protocol.CODE_VERSION)
@@ -48,12 +62,12 @@ class Client:
         self.sock.settimeout(self.config.write_timeout_s)
         self.sock.sendall(payload)
 
-    def ack(self, message_count):
+    def _ack(self, message_count):
         ack_seq = 0
         while ack_seq < message_count:
             ack_seq = self._recv_ack()
 
-        if ack_seq > message_count:
+        if ack_seq != message_count:
             raise protocol.ProtocolError(
                 f'invalid ack sequence number received; expected {message_count}, got {ack_seq}')
 
